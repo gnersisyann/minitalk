@@ -26,18 +26,18 @@ To send a message from the client:
 # 📜 Usage Example
 
 Start the server:
-
+```
 $ ./server  
 Server PID: 12345  
-
+```
 Send a message from the client:
-
+```
 $ ./client 12345 "Hello, minitalk!"  
-
+```
 The server will receive and print:
-
-Received: Hello, minitalk!  
-
+```
+Hello, minitalk!  
+```
 # 🏆 Learning Outcomes
 
 ✅ Understanding UNIX signals (SIGUSR1, SIGUSR2)
