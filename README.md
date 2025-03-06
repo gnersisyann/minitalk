@@ -38,8 +38,10 @@ The server will receive and print:
 
 Received: Hello, minitalk!  
 
-🏆 Learning Outcomes
+# 🏆 Learning Outcomes
 
 ✅ Understanding UNIX signals (SIGUSR1, SIGUSR2)
+
 ✅ Bitwise operations for message encoding
+
 ✅ Signal handling and interprocess communication
