@@ -25,16 +25,18 @@ void	send_bits(pid_t server_pid, char byte)
 		if (byte & (1 << (7 - i)))
 		{
 			usleep(100);
-			kill(server_pid, SIGUSR1);
+			if (kill(server_pid, SIGUSR1) == -1)
+				handle_error("Error sending SIGUSR1");
 		}
 		else
 		{
 			usleep(100);
-			kill(server_pid, SIGUSR2);
+			if (kill(server_pid, SIGUSR2) == -1)
+				handle_error("Error sending SIGUSR2");
 		}
 		i++;
 		while (g_status == 0)
-			usleep(100);
+			usleep(80);
 	}
 }
 
@@ -47,8 +49,9 @@ int	main(int argc, char **argv)
 		return (ft_putstr_fd("Usage: ./client <server_pid> <message>\n", 1), 1);
 	server_pid = ft_atoi(argv[1]);
 	str = argv[2];
-	signal(SIGUSR1, usr1_action);
-	signal(SIGUSR2, usr2_action);
+	if (signal(SIGUSR1, usr1_action) == SIG_ERR || signal(SIGUSR2,
+			usr2_action) == SIG_ERR)
+		handle_error("Error setting signal handler");
 	while (*str)
 		send_bits(server_pid, *str++);
 	send_bits(server_pid, '\0');

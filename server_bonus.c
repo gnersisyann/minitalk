@@ -1,5 +1,4 @@
 #include "minitalk.h"
-#include <signal.h>
 
 void	add_bit(int bit, int *bit_pos, char *current_char)
 {
@@ -14,7 +13,10 @@ void	check_char(int *bit_pos, char *current_char, pid_t client_pid)
 	{
 		write(1, current_char, 1);
 		if (*current_char == '\0')
-			kill(client_pid, SIGUSR2);
+		{
+			if (kill(client_pid, SIGUSR2) == -1)
+				handle_error("Error sending SIGUSR2");
+		}
 		*current_char = 0;
 		*bit_pos = 0;
 	}
@@ -31,7 +33,8 @@ void	signal_handler(int signum, siginfo_t *info, void *extra_info)
 	else if (signum == SIGUSR2)
 		add_bit(0, &bit_pos, &current_char);
 	check_char(&bit_pos, &current_char, info->si_pid);
-	kill(info->si_pid, SIGUSR1);
+	if (kill(info->si_pid, SIGUSR1) == -1)
+		handle_error("Error sending SIGUSR1");
 }
 
 int	main(void)
@@ -48,8 +51,9 @@ int	main(void)
 	sigemptyset(&sa.sa_mask);
 	sigaddset(&sa.sa_mask, SIGUSR1);
 	sigaddset(&sa.sa_mask, SIGUSR2);
-	sigaction(SIGUSR1, &sa, NULL);
-	sigaction(SIGUSR2, &sa, NULL);
+	if (sigaction(SIGUSR1, &sa, NULL) == -1 || sigaction(SIGUSR2, &sa, NULL) \
+				== -1)
+		handle_error("Error setting up signal handler");
 	while (1)
 		pause();
 }

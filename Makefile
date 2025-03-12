@@ -4,13 +4,13 @@ SERVER_NAME_BONUS	=	server_bonus
 CLIENT_NAME_BONUS	=	client_bonus
 HEADER				=	minitalk.h
 CC					=	cc
-CFLAGS				=	-Wall -Wextra -Werror
+CFLAGS				=	-Wall -Wextra -Werror #-fsanitize=address
 RM					=	rm -f
 
-SRCS_SERVER			=	server.c utils.c
-SRCS_CLIENT			=	client.c utils.c
-SRCS_SERVER_BONUS	=	server_bonus.c utils.c
-SRCS_CLIENT_BONUS	=	client_bonus.c utils.c
+SRCS_SERVER			=	server.c utils.c handler.c
+SRCS_CLIENT			=	client.c utils.c handler.c
+SRCS_SERVER_BONUS	=	server_bonus.c utils.c handler.c
+SRCS_CLIENT_BONUS	=	client_bonus.c utils.c handler.c
 
 OBJS_SERVER			=	$(SRCS_SERVER:%.c=%.o)
 OBJS_CLIENT			=	$(SRCS_CLIENT:%.c=%.o)

@@ -28,7 +28,8 @@ void	signal_handler(int signum, siginfo_t *info, void *extra_info)
 	else if (signum == SIGUSR2)
 		add_bit(0, &bit_pos, &current_char);
 	check_char(&bit_pos, &current_char);
-	kill(info->si_pid, SIGUSR1);
+	if (kill(info->si_pid, SIGUSR1) == -1)
+		handle_error("Error sending signal to client");
 }
 
 int	main(void)
@@ -45,8 +46,9 @@ int	main(void)
 	sigemptyset(&sa.sa_mask);
 	sigaddset(&sa.sa_mask, SIGUSR1);
 	sigaddset(&sa.sa_mask, SIGUSR2);
-	sigaction(SIGUSR1, &sa, NULL);
-	sigaction(SIGUSR2, &sa, NULL);
+	if (sigaction(SIGUSR1, &sa, NULL) == -1 || sigaction(SIGUSR2, &sa, NULL) \
+				== -1)
+		handle_error("Error setting up signal handler");
 	while (1)
 		pause();
 }
