@@ -17,32 +17,33 @@ void	send_bits(pid_t server_pid, char byte)
 	{
 		g_status = 0;
 		if (byte & (1 << (7 - i)))
+		{
+			usleep(100);
 			kill(server_pid, SIGUSR1);
+		}
 		else
+		{
+			usleep(100);
 			kill(server_pid, SIGUSR2);
+		}
+		i++;
 		while (g_status == 0)
-			usleep(80);
-		++i;
+			usleep(100);
 	}
 }
 
 int	main(int argc, char **argv)
 {
-	struct sigaction	new_usr1;
-	pid_t				server_pid;
-	char				*str;
+	pid_t	server_pid;
+	char	*str;
 
 	if (argc != 3)
-		return (ft_putstr_fd("Usage ./client <server pid> <message>\n", 1), 1);
+		return (ft_putstr_fd("Usage: ./client <server_pid> <message>\n", 1), 1);
 	server_pid = ft_atoi(argv[1]);
 	str = argv[2];
-	sigemptyset(&new_usr1.sa_mask);
-	new_usr1.sa_handler = usr1_action;
-	new_usr1.sa_flags = 0;
-	sigaction(SIGUSR1, &new_usr1, NULL);
-	while (str && *str != '\0')
-	{
-		send_bits(server_pid, *str);
-		str++;
-	}
+	signal(SIGUSR1, usr1_action);
+	while (*str)
+		send_bits(server_pid, *str++);
+	send_bits(server_pid, '\0');
+	return (0);
 }

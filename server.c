@@ -1,60 +1,52 @@
 #include "minitalk.h"
 
-t_data	g_data = {0, 0};
-
-void	add_bit(int bit)
+void	add_bit(int bit, int *bit_pos, int *current_char)
 {
 	if (bit == 1)
-		g_data.current_char |= (1 << (7 - g_data.bit_pos));
-	g_data.bit_pos++;
+		*current_char |= (1 << (7 - *bit_pos));
+	(*bit_pos)++;
 }
 
-void	check_char(void)
+void	check_char(int *bit_pos, int *current_char)
 {
-	if (g_data.bit_pos == 8)
+	if (*bit_pos == 8)
 	{
-		write(1, &g_data.current_char, 1);
-		g_data.current_char = 0;
-		g_data.bit_pos = 0;
+		write(1, current_char, 1);
+		*current_char = 0;
+		*bit_pos = 0;
 	}
 }
 
-void	usr1_action(int signum, siginfo_t *info, void *extra_info)
+void	signal_handler(int signum, siginfo_t *info, void *extra_info)
 {
-	(void)signum;
-	(void)extra_info;
-	add_bit(1);
-	check_char();
-	kill(info->si_pid, SIGUSR1);
-}
+	static int	bit_pos = 0;
+	static int	current_char = 0;
 
-void	usr2_action(int signum, siginfo_t *info, void *extra_info)
-{
-	(void)signum;
 	(void)extra_info;
-	add_bit(0);
-	check_char();
+	if (signum == SIGUSR1)
+		add_bit(1, &bit_pos, &current_char);
+	else if (signum == SIGUSR2)
+		add_bit(0, &bit_pos, &current_char);
+	check_char(&bit_pos, &current_char);
 	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
 {
 	pid_t				pid;
-	struct sigaction	new_usr1;
-	struct sigaction	new_usr2;
+	struct sigaction	sa;
 
 	pid = getpid();
 	ft_putstr_fd("Server started, server pid is: ", 1);
 	ft_putnbr_fd(pid, 1);
 	ft_putstr_fd("\n", 1);
-	new_usr1.sa_sigaction = usr1_action;
-	sigemptyset(&new_usr1.sa_mask);
-	new_usr1.sa_flags = SA_SIGINFO;
-	sigaction(SIGUSR1, &new_usr1, NULL);
-	new_usr2.sa_sigaction = usr2_action;
-	sigemptyset(&new_usr2.sa_mask);
-	new_usr2.sa_flags = SA_SIGINFO;
-	sigaction(SIGUSR2, &new_usr2, NULL);
+	sa.sa_sigaction = signal_handler;
+	sa.sa_flags = SA_SIGINFO;
+	sigemptyset(&sa.sa_mask);
+	sigaddset(&sa.sa_mask, SIGUSR1);
+	sigaddset(&sa.sa_mask, SIGUSR2);
+	sigaction(SIGUSR1, &sa, NULL);
+	sigaction(SIGUSR2, &sa, NULL);
 	while (1)
 		pause();
 }

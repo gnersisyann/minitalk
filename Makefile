@@ -4,7 +4,7 @@ SERVER_NAME_BONUS	=	server_bonus
 CLIENT_NAME_BONUS	=	client_bonus
 HEADER				=	minitalk.h
 CC					=	cc
-CFLAGS				=	-g -Wall -Wextra -Werror
+CFLAGS				=	-Wall -Wextra -Werror
 RM					=	rm -f
 
 SRCS_SERVER			=	server.c utils.c
